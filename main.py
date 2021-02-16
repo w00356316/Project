@@ -73,7 +73,6 @@ class Ui_Dialog(QWidget):
         if chess_man != None:
             chess_man['pos'] = pos
             self.chess_man_entry.chess_man_map[chess_man['name']] = chess_man
-        self.chess_board_entry.chess_board_map[pos]['chess_man'] = chess_man
         self.strategy_entry.chess_map[pos]['chess_man'] = chess_man
 
     def update_chess_man(self):
@@ -95,7 +94,7 @@ class Ui_Dialog(QWidget):
         self.chess_man_entry.chess_man_init(Dialog, self.chess_board_entry.set_chess_map_init_chess_man,
                                             self.chess_board_entry.get_position_by_pos,
                                             self.chess_obj_clicked)
-        self.strategy_entry.set_chess_map(self.chess_board_entry.chess_board_map)
+        self.strategy_entry.set_chess_map(self.chess_board_entry.chess_board_map.copy())
 
     def get_chess_board_pos(self):
         x, y = pag.position()
@@ -150,6 +149,9 @@ class Ui_Dialog(QWidget):
             self.strategy_entry.strategy_run()
             return False
 
+    def get_chess_board_entry(self):
+        return self.chess_board_entry
+
     def strategy_entry_init(self):
         self.strategy_entry.chess_size_init(self.chess_man_size, self.chess_board_entry.chess_board_width,
                                             self.chess_board_entry.chess_board_height,
@@ -158,6 +160,7 @@ class Ui_Dialog(QWidget):
                                             self.chess_board_entry.first_left_line,
                                             self.chess_board_entry.first_top_line)
         self.strategy_entry.set_update_chess_man_func(self.update_chess_man)
+        self.strategy_entry.set_chess_board_entry_func(self.get_chess_board_entry)
 
     def chess_board_init(self, Dialog):
         self.chess_board_entry = ChessBoard()
@@ -165,12 +168,13 @@ class Ui_Dialog(QWidget):
                                                 self.assert_dir, self.chess_obj_clicked)
 
     def setupUi(self, Dialog):
+        # 初始化顺序不可随意修改
         Dialog.setObjectName("Dialog")
         Dialog.resize(self.dialog_width, self.dialog_heigth)
         Dialog.set_close_call_back(self.stop_all_thread)
         self.chess_board_init(Dialog)
-        self.strategy_entry_init()
         self.chess_man_init(Dialog)
+        self.strategy_entry_init()
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 

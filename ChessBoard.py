@@ -58,3 +58,10 @@ class ChessBoard():
         rst[0] = chess_man['x']
         rst[1] = chess_man['y']
         return rst
+
+    def get_pos_info_by_name(self, name):
+        for chess_pos in self.chess_board_map:
+            if chess_pos['chess_man'] != None:
+                if chess_pos['chess_man']['name'] == name:
+                    return chess_pos
+        return None

@@ -20,6 +20,38 @@ class ChessStrategy():
         self.first_left_line = 0
         self.first_top_line = 0
         self.chess_man_strategy_init()
+        self.get_chess_board_entry_func = None
+        self.black_shuai_init_pos = 0
+        self.red_shuai_init_pos = 0
+
+    def set_chess_map(self, chess_map):
+        self.chess_map = chess_map
+
+    def set_update_chess_man_func(self, func):
+        self.update_chess_man_func = func
+
+    def set_chess_board_entry_func(self, func):
+        self.get_chess_board_entry_func = func
+        self.set_shuai_init_pos()
+
+    def set_shuai_init_pos(self):
+        if self.get_chess_board_entry_func == None:
+            print('get_chess_board_entry_func not init error!!!')
+            return
+        chess_board_entry = self.get_chess_board_entry_func()
+        if chess_board_entry == None:
+            print('get_chess_board_entry_func error!!!')
+            return
+        shuai = chess_board_entry.get_pos_info_by_name('red_shuai')
+        if shuai == None:
+            print('chess_man_red_xiang_rule: [red_shuai] invalid name!!!')
+            return
+        self.red_shuai_init_pos = shuai['chess_man']['pos']
+        shuai = chess_board_entry.get_pos_info_by_name('black_shuai')
+        if shuai == None:
+            print('chess_man_red_xiang_rule: [black_shuai] invalid name!!!')
+            return
+        self.black_shuai_init_pos = shuai['chess_man']['pos']
 
     def chess_size_init(self, chess_man_size, chessboard_width, chessboard_height, per_chessboard_width,
                         per_chessboard_height, first_left_line, first_top_line):
@@ -78,18 +110,40 @@ class ChessStrategy():
     def chess_man_black_xiang_rule(self, change_info):
         if self.chess_man_xiang_rule(change_info) != True:
             return False
+        row_dis = self.calc_two_pos_row_or_col_distance(self.black_shuai_init_pos, change_info['second_pos'], 'row')
+        if math.fabs(row_dis) > 4:
+            return False
         return True
 
     def chess_man_red_xiang_rule(self, change_info):
         if self.chess_man_xiang_rule(change_info) != True:
             return False
+        row_dis = self.calc_two_pos_row_or_col_distance(self.red_shuai_init_pos, change_info['second_pos'], 'row')
+        if math.fabs(row_dis) > 4:
+            return False
         return True
 
     def chess_man_black_shi_rule(self, change_info):
-        return True
+        black_shi_rule_tab = {3:[13], 5:[13], 21:[13], 23:[13], 13:[3,5,21,23]}
+        if not change_info['first_pos'] in black_shi_rule_tab:
+            print('chess_man_black_shi_rule pos({}) err!!!'.format(change_info['first_pos']))
+            return False
+        rule_arry = black_shi_rule_tab[change_info['first_pos']]
+        for pos in rule_arry:
+            if pos == change_info['second_pos']:
+                return True
+        return False
 
     def chess_man_red_shi_rule(self, change_info):
-        return True
+        red_shi_rule_tab = {84: [76], 86: [76], 66: [76], 68: [76], 76: [84, 86, 66, 68]}
+        if not change_info['first_pos'] in red_shi_rule_tab:
+            print('chess_man_black_shi_rule pos({}) err!!!'.format(change_info['first_pos']))
+            return False
+        rule_arry = red_shi_rule_tab[change_info['first_pos']]
+        for pos in rule_arry:
+            if pos == change_info['second_pos']:
+                return True
+        return False
 
     def chess_man_black_shuai_rule(self, change_info):
         return True
@@ -192,12 +246,6 @@ class ChessStrategy():
                                  'pao': self.chess_man_pao_rule,
                                  'black_bing': self.chess_man_black_bing_rule,
                                  'red_bing': self.chess_man_red_bing_rule}
-
-    def set_chess_map(self, chess_map):
-        self.chess_map = chess_map
-
-    def set_update_chess_man_func(self, func):
-        self.update_chess_man_func = func
 
     def click_pos_change_process(self):
         result = {}

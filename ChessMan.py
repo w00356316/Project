@@ -49,7 +49,7 @@ class ChessMan():
                           {'label_handle': self.black_ma_l, 'pos': 1, 'pic_name': 'black_ma.png', 'name': 'black_ma_l'},
                           {'label_handle': self.black_xiang_l, 'pos': 2, 'pic_name': 'black_xiang.png', 'name': 'black_xiang_l'},
                           {'label_handle': self.black_shi_l, 'pos': 3, 'pic_name': 'black_shi.png', 'name': 'black_shi_l'},
-                          {'label_handle': self.black_shuai, 'pos': 4, 'pic_name': 'black_shuai.png', 'name': 'black_shuai_l'},
+                          {'label_handle': self.black_shuai, 'pos': 4, 'pic_name': 'black_shuai.png', 'name': 'black_shuai'},
                           {'label_handle': self.black_shi_r, 'pos': 5, 'pic_name': 'black_shi.png', 'name': 'black_shi_r'},
                           {'label_handle': self.black_xiang_r, 'pos': 6, 'pic_name': 'black_xiang.png', 'name': 'black_xiang_r'},
                           {'label_handle': self.black_ma_r, 'pos': 7, 'pic_name': 'black_ma.png', 'name': 'black_ma_r'},
@@ -65,7 +65,7 @@ class ChessMan():
                           {'label_handle': self.red_ma_l, 'pos': 88, 'pic_name': 'red_ma.png', 'name': 'red_ma_l'},
                           {'label_handle': self.red_xiang_l, 'pos': 87, 'pic_name': 'red_xiang.png', 'name': 'red_xiang_l'},
                           {'label_handle': self.red_shi_l, 'pos': 86, 'pic_name': 'red_shi.png', 'name': 'red_shi_l'},
-                          {'label_handle': self.red_shuai, 'pos': 85, 'pic_name': 'red_shuai.png', 'name': 'red_shuai_l'},
+                          {'label_handle': self.red_shuai, 'pos': 85, 'pic_name': 'red_shuai.png', 'name': 'red_shuai'},
                           {'label_handle': self.red_shi_r, 'pos': 84, 'pic_name': 'red_shi.png', 'name': 'red_shi_r'},
                           {'label_handle': self.red_xiang_r, 'pos': 83, 'pic_name': 'red_xiang.png', 'name': 'red_xiang_r'},
                           {'label_handle': self.red_ma_r, 'pos': 82, 'pic_name': 'red_ma.png', 'name': 'red_ma_r'},
@@ -77,16 +77,18 @@ class ChessMan():
                           {'label_handle': self.red_bing3, 'pos': 58, 'pic_name': 'red_bing.png', 'name': 'red_bing3'},
                           {'label_handle': self.red_bing4, 'pos': 60, 'pic_name': 'red_bing.png', 'name': 'red_bing4'},
                           {'label_handle': self.red_bing5, 'pos': 62, 'pic_name': 'red_bing.png', 'name': 'red_bing5'}]
-        for chess_man in chess_man_info:
-            self.set_chess_man(chess_man['label_handle'], chess_man['pos'], chess_man['pic_name'], chess_man['name'],
-                               set_chess_man_call_back_func, get_x_y_by_pos_call_back_func,
+        for chess_man_info in chess_man_info:
+            self.set_chess_man(chess_man_info, set_chess_man_call_back_func, get_x_y_by_pos_call_back_func,
                                chess_obj_clicked_call_back_func)
 
-    def set_chess_man(self, chess_man, pos, pic_name, chess_man_name, set_chess_man_call_back_func,
-                      get_x_y_by_pos_call_back_func, chess_obj_clicked_call_back_func):
+    def set_chess_man(self, chess_man_info, set_chess_man_call_back_func, get_x_y_by_pos_call_back_func,
+                      chess_obj_clicked_call_back_func):
+        chess_man = chess_man_info['label_handle']
+        pos = chess_man_info['pos']
+        chess_man_name = chess_man_info['name']
         position = get_x_y_by_pos_call_back_func(pos)
         chess_man.setGeometry(QtCore.QRect(position[0], position[1], self.chess_man_size, self.chess_man_size))
-        pix = QPixmap(os.path.join(self.assert_dir, pic_name))
+        pix = QPixmap(os.path.join(self.assert_dir, chess_man_info['pic_name']))
         pic_handle = pix.scaled(self.chess_man_size, self.chess_man_size)
         chess_man.setPixmap(pic_handle)
         chess_man.set_chess_label_name(chess_man_name)
