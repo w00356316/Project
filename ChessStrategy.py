@@ -1,6 +1,5 @@
 # coding=utf-8
 
-import sys
 import math
 
 class ChessStrategy():
@@ -39,13 +38,51 @@ class ChessStrategy():
             return self.che_and_pao_attack_rule(change_info, 0)
         return True
 
+    def calc_two_pos_row_or_col_distance(self, pos1, pos2, row_or_col):
+        if row_or_col == 'row':
+            return int(pos1 / 9) - int(pos2 / 9)
+        return (pos1 % 9) - (pos2 % 9)
+
     def chess_man_ma_rule(self, change_info):
+        row_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'row')
+        col_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'col')
+        ma_rule_tab = [[1,2,-9], [-1,2,-9], [1,-2,9], [-1,-2,9], [2,1,-1], [2,-1,-1], [-2,1,1], [-2,-1,1]]
+        sub_num = 0
+        for ma_rule in ma_rule_tab:
+            if (ma_rule[0] == col_dis) and (ma_rule[1] == row_dis):
+                sub_num = ma_rule[2]
+                break
+        if sub_num == 0:
+            return False
+        sub_num += change_info['first_pos']
+        if self.chess_map[sub_num]['chess_man'] != None:
+            return False
+        return True
+
+    def chess_man_xiang_rule(self, change_info):
+        row_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'row')
+        col_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'col')
+        xiang_rule_tab = [[2, 2, -10], [2, -2, 8], [-2, 2, -8], [-2, -2, 10]]
+        sub_num = 0
+        for xiang_rule in xiang_rule_tab:
+            if (xiang_rule[0] == col_dis) and (xiang_rule[1] == row_dis):
+                sub_num = xiang_rule[2]
+                break
+        if sub_num == 0:
+            return False
+        sub_num += change_info['first_pos']
+        if self.chess_map[sub_num]['chess_man'] != None:
+            return False
         return True
 
     def chess_man_black_xiang_rule(self, change_info):
+        if self.chess_man_xiang_rule(change_info) != True:
+            return False
         return True
 
     def chess_man_red_xiang_rule(self, change_info):
+        if self.chess_man_xiang_rule(change_info) != True:
+            return False
         return True
 
     def chess_man_black_shi_rule(self, change_info):
