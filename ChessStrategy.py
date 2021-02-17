@@ -146,10 +146,22 @@ class ChessStrategy():
         return False
 
     def chess_man_black_shuai_rule(self, change_info):
-        return True
+        black_shuai_rule_tab = {3: [12, 4], 4: [3, 5, 13], 5: [4, 14], 12: [3, 21, 13], 13: [4, 12, 22, 14],
+                                14: [13, 5, 23], 21: [12, 22], 22 :[21, 23, 13], 23 :[22, 14]}
+        rule_arry = black_shuai_rule_tab[change_info['first_pos']]
+        for pos in rule_arry:
+            if pos == change_info['second_pos']:
+                return True
+        return False
 
     def chess_man_red_shuai_rule(self, change_info):
-        return True
+        red_shuai_rule_tab = {84: [85, 75], 85: [84, 86, 76], 86: [85, 77], 75: [76, 84, 66], 76: [75, 85, 67, 77],
+                              77: [76, 86, 68], 66: [67, 75], 67: [66, 68, 76], 68: [67, 77]}
+        rule_arry = red_shuai_rule_tab[change_info['first_pos']]
+        for pos in rule_arry:
+            if pos == change_info['second_pos']:
+                return True
+        return False
 
     def chess_man_pao_rule(self, change_info):
         if change_info['thread_action'] == 'move':
@@ -195,10 +207,33 @@ class ChessStrategy():
         else:
             return False
 
+    def chess_man_bing_rule(self, change_info, shuai_init_pos):
+        last_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], shuai_init_pos, 'row')
+        cur_dis = self.calc_two_pos_row_or_col_distance(change_info['second_pos'], shuai_init_pos, 'row')
+        last_dis = math.fabs(last_dis)
+        cur_dis = math.fabs(cur_dis)
+        if last_dis > cur_dis:
+            return False
+        move_row_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'row')
+        move_row_dis = math.fabs(move_row_dis)
+        if move_row_dis > 1:
+            return False
+        move_col_dis = self.calc_two_pos_row_or_col_distance(change_info['first_pos'], change_info['second_pos'], 'col')
+        move_col_dis = math.fabs(move_col_dis)
+        if move_col_dis > 1:
+            return False
+        elif (move_col_dis == 1) and (cur_dis < 5):
+            return False
+        return True
+
     def chess_man_black_bing_rule(self, change_info):
+        if self.chess_man_bing_rule(change_info, self.black_shuai_init_pos) != True:
+            return False
         return True
 
     def chess_man_red_bing_rule(self, change_info):
+        if self.chess_man_bing_rule(change_info, self.red_shuai_init_pos) != True:
+            return False
         return True
 
     def judge_two_pos_in_same_row(self, pos1, pos2):
