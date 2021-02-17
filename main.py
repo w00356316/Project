@@ -11,8 +11,22 @@ from ChessMan import ChessMan
 import sys
 import os
 import pyautogui as pag
+from pygame import mixer
 import time
+import threading
 import win32gui
+
+class Mp3Thread(threading.Thread):
+    def __init__(self, func):
+        threading.Thread.__init__(self)
+        self.timeToQuit = threading.Event()
+        self.timeToQuit.clear()
+        self.func = func
+
+    def run(self):
+        while not self.timeToQuit.isSet():
+            self.func()
+            self.timeToQuit.set()
 
 class ChessWidget(QWidget):
     def set_close_call_back(self, func):
@@ -39,6 +53,21 @@ class Ui_Dialog(QWidget):
         self.dialog_heigth = 800
         self.strategy_entry = ChessStrategy()
         self.competition = ChessCompetition()
+        self.back_ground_label = None
+
+    def chess_dub_player_thread(self):
+        dub_mp3 = Mp3Thread(self.chess_dub_player)
+        dub_mp3.start()
+
+    def chess_dub_player(self):
+        mixer.music.play()
+        time.sleep(2)
+        mixer.music.stop()
+
+    def chess_dub_player_init(self):
+        sound_file = os.path.join(self.assert_dir, 'chess.mp3')
+        mixer.init()
+        mixer.music.load(sound_file)
 
     def stop_all_thread(self):
         if self.chess_board_entry.chess_board_label.chess_thread != None:
@@ -88,6 +117,7 @@ class Ui_Dialog(QWidget):
             if self.update_chess_man_method(self.strategy_entry.update_third_chess_man) != True:
                 print('update_chess_man_method: third fail!!!')
         self.competition.change_cur_player()
+        self.chess_dub_player_thread()
 
     def chess_man_init(self, Dialog):
         self.chess_man_entry = ChessMan(self.assert_dir)
@@ -167,11 +197,21 @@ class Ui_Dialog(QWidget):
         self.chess_board_entry.chess_board_init(Dialog, self.dialog_heigth, self.chess_man_size,
                                                 self.assert_dir, self.chess_obj_clicked)
 
+    def back_ground_init(self, Dialog):
+        self.back_ground_label = ChessQLabel(Dialog)
+        self.back_ground_label.set_chess_label_name('back_ground')
+        self.back_ground_label.setGeometry(QtCore.QRect(0, 0, self.dialog_width, self.dialog_heigth))
+        back_ground_pix = QPixmap(os.path.join(self.assert_dir, 'back_ground.jpg'))
+        pic_handle = back_ground_pix.scaled(self.back_ground_label.width(), self.back_ground_label.height())
+        self.back_ground_label.setPixmap(pic_handle)
+
     def setupUi(self, Dialog):
         # 初始化顺序不可随意修改
         Dialog.setObjectName("Dialog")
         Dialog.resize(self.dialog_width, self.dialog_heigth)
         Dialog.set_close_call_back(self.stop_all_thread)
+        self.chess_dub_player_init()
+        self.back_ground_init(Dialog)
         self.chess_board_init(Dialog)
         self.chess_man_init(Dialog)
         self.strategy_entry_init()

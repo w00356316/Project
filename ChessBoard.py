@@ -8,20 +8,19 @@ import os
 class ChessBoard():
     def __init__(self):
         self.chess_board_width = 700
-        self.chess_board_height = 785
+        self.chess_board_height = 800
         self.chess_board_label = None
         self.chess_board_pic_name = 'qi_pan.jpg'
         self.per_chessboard_width = 77
         self.per_chessboard_height = 77
         self.first_left_line = 44
-        self.first_top_line = 48
+        self.first_top_line = 55
         self.chess_board_map = []
 
     def chess_board_init(self, Dialog, dialog_heigth, chess_man_size, assert_dir, chess_obj_clicked):
         self.chess_board_label = ChessQLabel(Dialog)
         self.chess_board_label.set_chess_label_name('chess_board')
-        space = (dialog_heigth - self.chess_board_height) / 2
-        self.chess_board_label.setGeometry(QtCore.QRect(space, space, self.chess_board_width, self.chess_board_height))
+        self.chess_board_label.setGeometry(QtCore.QRect(0, 0, self.chess_board_width, self.chess_board_height))
         chess_board_path = os.path.join(assert_dir, self.chess_board_pic_name)
         chess_board_pix = QPixmap(chess_board_path)
         pic_handle = chess_board_pix.scaled(self.chess_board_label.width(), self.chess_board_label.height())
@@ -31,9 +30,8 @@ class ChessBoard():
 
     def create_chess_map(self, dialog_heigth, chess_man_size):
         # 棋盘10行9列
-        space = (dialog_heigth - self.chess_board_height) / 2
-        start_x = self.first_left_line + space
-        start_y = self.first_top_line + space
+        start_x = self.first_left_line
+        start_y = self.first_top_line
         half_chess_man_size = chess_man_size / 2
         for i in range(90):
             temp_row = int(i / 9)
