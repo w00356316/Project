@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5 import QtCore
 import os
 import cv2
+import math
 
 class ChessBoard():
     def __init__(self):
@@ -23,6 +24,7 @@ class ChessBoard():
         self.chess_board_map = []
         self.big_line_size = 5
         self.small_line_size = 3
+        self.line_color = {'R':20, 'G':40, 'B':80}
         self.first_sub_chess_board_left = 0
         self.first_sub_chess_board_top = 0
         self.sub_chess_board_pic_rect = [] # [{}, {}, ...]
@@ -80,9 +82,15 @@ class ChessBoard():
 
     def draw_line(self, cropped, start_row, end_row, start_col, end_col):
         ret_pic = cropped
-        ret_pic[start_row:end_row, start_col:end_col, 0] = 0
-        ret_pic[start_row:end_row, start_col:end_col, 1] = 0
-        ret_pic[start_row:end_row, start_col:end_col, 2] = 0
+        temp_end_row = cropped.shape[0] - 1
+        if end_row < temp_end_row:
+            temp_end_row = end_row
+        temp_end_col = cropped.shape[1] - 1
+        if end_col < temp_end_col:
+            temp_end_col = end_col
+        ret_pic[start_row:temp_end_row, start_col:temp_end_col, 2] = self.line_color['R']
+        ret_pic[start_row:temp_end_row, start_col:temp_end_col, 1] = self.line_color['G']
+        ret_pic[start_row:temp_end_row, start_col:temp_end_col, 0] = self.line_color['B']
         return ret_pic
 
     def draw_top_left_sub_chess_board(self, cropped):
@@ -143,8 +151,8 @@ class ChessBoard():
         end_col = int(col_num / 2) + self.big_line_size
         return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
 
-    def draw_top_row_sub_chess_board(self, cropped):
-        ret_pic = cropped
+    def draw_top_row_sub_chess_board(self, cropped, index):
+        ret_pic = self.check_and_draw_shi_line(cropped, index)
         row_num = cropped.shape[0]
         col_num = cropped.shape[1]
         end_row = int(row_num / 2)
@@ -157,8 +165,8 @@ class ChessBoard():
         end_col = start_col + self.small_line_size
         return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
 
-    def draw_bottom_row_sub_chess_board(self, cropped):
-        ret_pic = cropped
+    def draw_bottom_row_sub_chess_board(self, cropped, index):
+        ret_pic = self.check_and_draw_shi_line(cropped, index)
         row_num = cropped.shape[0]
         col_num = cropped.shape[1]
         start_col = 0
@@ -217,7 +225,7 @@ class ChessBoard():
 
     def draw_center_sub_chess_board(self, cropped, index):
         row_idx = int(index / 9)
-        ret_pic = cropped
+        ret_pic = self.check_and_draw_shi_line(cropped, index)
         draw_flag = self.check_is_need_draw_flag(index)
         if draw_flag != None:
             ret_pic = self.draw_center_pao_and_bing_flag(cropped, draw_flag)
@@ -291,6 +299,50 @@ class ChessBoard():
         else:
             return ret_pic
 
+    def check_and_draw_shi_line(self, cropped, index):
+        if index == 3 or index == 13 or index == 23 or \
+                index == 66 or index == 76 or index == 86:
+            start_row = 0
+            end_row = cropped.shape[0]
+            if index == 3 or index == 66:
+                start_row = int(cropped.shape[0] / 2)
+            if index == 23 or index == 86:
+                end_row = int(cropped.shape[0] / 2)
+            if index == 13 or index == 76:
+                ret_pic = self.draw_shi_line(cropped, start_row, end_row, 'right_bttom')
+                return self.draw_shi_line(ret_pic, start_row, end_row, 'right_top')
+            else:
+                return self.draw_shi_line(cropped, start_row, end_row, 'right_bttom')
+        elif index == 5 or index == 21 or index == 68 or index == 84:
+            start_row = 0
+            end_row = cropped.shape[0]
+            if index == 5 or index == 68:
+                start_row = int(cropped.shape[0] / 2)
+            if index == 21 or index == 84:
+                end_row = int(cropped.shape[0] / 2)
+            return self.draw_shi_line(cropped, start_row, end_row, 'right_top')
+        return cropped
+
+    def draw_shi_line(self, cropped, start_row, end_row, line_dir):
+        ret_pic = cropped
+        line_slope = self.per_chessboard_width / self.per_chessboard_height
+        row = start_row
+        line_size = int(self.small_line_size / 6 * 4)
+        if line_dir == 'right_bttom':
+            while row < end_row:
+                start_col = int(line_slope * row)
+                end_col = start_col + line_size
+                ret_pic = self.draw_line(ret_pic, row, row + line_size, start_col, end_col)
+                row += 1
+        else:
+            row = end_row
+            while row > start_row:
+                start_col = cropped.shape[1] - int(line_slope * row)
+                end_col = start_col + line_size
+                ret_pic = self.draw_line(ret_pic, row, row + line_size, start_col, end_col)
+                row -= 1
+        return ret_pic
+
     def draw_line_on_sub_chess_board(self, cropped, index):
         col_idx = index % 9
         if index == 0:
@@ -302,9 +354,9 @@ class ChessBoard():
         if index == 89:
             return self.draw_bottom_right_sub_chess_board(cropped)
         if index < 9:
-            return self.draw_top_row_sub_chess_board(cropped)
+            return self.draw_top_row_sub_chess_board(cropped, index)
         if index >= 81:
-            return self.draw_bottom_row_sub_chess_board(cropped)
+            return self.draw_bottom_row_sub_chess_board(cropped, index)
         if col_idx == 0:
             return self.draw_left_col_sub_chess_board(cropped, index)
         if col_idx == 8:
