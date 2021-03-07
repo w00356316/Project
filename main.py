@@ -48,9 +48,9 @@ class Ui_Dialog(QWidget):
         self.title_name = '中国象棋'
         self.chess_board_entry = None
         self.chess_man_entry = None
-        self.chess_man_size = 110
         self.dialog_width = 880
         self.dialog_heigth = 800
+        self.chess_man_size = int(self.dialog_heigth / 10 / 5 * 7)
         self.strategy_entry = ChessStrategy()
         self.competition = ChessCompetition()
         self.back_ground_label = None
@@ -119,7 +119,7 @@ class Ui_Dialog(QWidget):
         self.competition.change_cur_player()
         self.chess_dub_player_thread()
 
-    def chess_man_init(self, Dialog):
+    def create_chess_man(self, Dialog):
         self.chess_man_entry = ChessMan(self.assert_dir, self.chess_man_size)
         self.chess_man_entry.chess_man_init(Dialog, self.chess_board_entry.set_chess_map_init_chess_man,
                                             self.chess_board_entry.get_position_by_pos,
@@ -213,7 +213,7 @@ class Ui_Dialog(QWidget):
         self.chess_dub_player_init()
         self.back_ground_init(Dialog)
         self.chess_board_create(Dialog)
-        self.chess_man_init(Dialog)
+        self.create_chess_man(Dialog)
         self.strategy_entry_init()
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)

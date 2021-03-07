@@ -14,8 +14,8 @@ class ChessBoard():
         self.chess_board_pic_name = 'qi_pan1.jpg'
         self.per_chessboard_width = 77
         self.per_chessboard_height = 77
-        self.first_left_line = 44
-        self.first_top_line = 55
+        self.first_left_line = 0
+        self.first_top_line = 0
         self.assert_dir = ''
         self.dialog_heigth = 0
         self.chess_board_map = []
@@ -58,18 +58,22 @@ class ChessBoard():
         ret_rect = [x0, y0, x1, y1]
         return ret_rect
 
-    def create_sub_chess_board(self, chess_board_path):
-        self.sub_chess_board_pic_rect_init(chess_board_path)
+    def cut_and_save_sub_chess_board(self, chess_board_path):
         img = cv2.imread(chess_board_path)
         for i in range(90):
             rect = self.get_cut_sub_chess_board_pos(i)
             cropped = img[rect[1]:rect[3], rect[0]:rect[2]]  # 裁剪坐标为[y0:y1, x0:x1]
             cropped_new = self.draw_line_on_sub_chess_board(cropped, i)
-            dst_pic_file = cv2.resize(cropped_new, (rect[3] - rect[1], rect[2] - rect[0]), interpolation=cv2.INTER_NEAREST)
+            dst_pic_file = cv2.resize(cropped_new, (rect[3] - rect[1], rect[2] - rect[0]),
+                                      interpolation=cv2.INTER_NEAREST)
             sub_chess_board_pic_name = 'sub_chess_board{}.jpg'.format(i)
             sub_chess_board_pic_path = os.path.join(self.assert_dir, sub_chess_board_pic_name)
             os.system('del {}'.format(sub_chess_board_pic_path))
             cv2.imwrite(sub_chess_board_pic_path, dst_pic_file)
+
+    def create_sub_chess_board(self, chess_board_path):
+        self.sub_chess_board_pic_rect_init(chess_board_path)
+        # self.cut_and_save_sub_chess_board(chess_board_path)
 
     def draw_line(self, cropped, start_row, end_row, start_col, end_col):
         ret_pic = cropped
@@ -137,7 +141,6 @@ class ChessBoard():
         return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
 
     def draw_line_on_sub_chess_board(self, cropped, index):
-        row_idx = int(index / 9)
         col_idx = index % 9
         ret_pic = cropped
         row_num = cropped.shape[0]
@@ -157,15 +160,31 @@ class ChessBoard():
         if index < 9:
             end_row = int(row_num / 2)
             start_row = end_row - self.big_line_size
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+            end_row = row_num
+            start_col = int(col_num / 2)
+            end_col = start_col + self.small_line_size
         elif index >= 81:
             start_row = int(row_num / 2)
             end_row = start_row + self.big_line_size
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+            start_row = 0
+            start_col = int(col_num / 2)
+            end_col = start_col + self.small_line_size
         elif col_idx == 0:
             end_col = int(col_num / 2)
             start_col = end_col - self.big_line_size
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+            end_col = col_num
+            start_row = int(row_num / 2)
+            end_row = start_row + self.small_line_size
         elif col_idx == 8:
             start_col = int(col_num / 2)
             end_col = start_col + self.big_line_size
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+            start_col = 0
+            start_row = int(row_num / 2)
+            end_row = start_row + self.small_line_size
         else:
             start_col = int(col_num / 2)
             end_col = start_col + self.small_line_size
@@ -185,7 +204,7 @@ class ChessBoard():
         chess_board_path = os.path.join(assert_dir, self.chess_board_pic_name)
         chess_board_pix = QPixmap(chess_board_path)
         pic_handle = chess_board_pix.scaled(self.chess_board_label.width(), self.chess_board_label.height())
-        # self.chess_board_label.setPixmap(pic_handle)
+        self.chess_board_label.setPixmap(pic_handle)
         self.chess_board_label.chess_lable_connect(chess_obj_clicked)
         self.create_chess_map(Dialog, dialog_heigth, chess_man_size)
         self.create_sub_chess_board(os.path.join(self.assert_dir, self.chess_board_pic_name))
@@ -202,14 +221,16 @@ class ChessBoard():
 
     def create_chess_map(self, Dialog, dialog_heigth, chess_man_size):
         # 棋盘10行9列
-        start_x = self.first_left_line
-        start_y = self.first_top_line
         half_chess_man_size = chess_man_size / 2
+        self.per_chessboard_width = int(dialog_heigth / 10)
+        self.per_chessboard_height = int(dialog_heigth / 10)
         for i in range(90):
             temp_row = int(i / 9)
             temp_col = i % 9
-            x = int(start_x + temp_col * self.per_chessboard_width - half_chess_man_size)
-            y = int(start_y + temp_row * self.per_chessboard_height - half_chess_man_size)
+            x = self.first_left_line + temp_col * self.per_chessboard_width + int(self.per_chessboard_width / 2)\
+                - half_chess_man_size
+            y = self.first_top_line + temp_row * self.per_chessboard_height + int(self.per_chessboard_height / 2)\
+                - half_chess_man_size
             poss_info = {}
             poss_info['x'] = x
             poss_info['y'] = y
