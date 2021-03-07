@@ -10,6 +10,7 @@ class ChessMan():
         self.chess_man_size = chess_man_size # 108
         self.assert_dir = assert_dir
         self.chess_man_map = {}
+        self.is_need_show_chess_man = True
 
     def chess_man_init(self, Dialog, set_chess_man_call_back_func, get_x_y_by_pos_call_back_func,
                        chess_obj_clicked_call_back_func):
@@ -90,7 +91,8 @@ class ChessMan():
         chess_man.setGeometry(QtCore.QRect(position[0], position[1], self.chess_man_size, self.chess_man_size))
         pix = QPixmap(os.path.join(self.assert_dir, chess_man_info['pic_name']))
         pic_handle = pix.scaled(self.chess_man_size, self.chess_man_size)
-        chess_man.setPixmap(pic_handle)
+        if self.is_need_show_chess_man == True:
+            chess_man.setPixmap(pic_handle)
         chess_man.set_chess_label_info(chess_man_name, 'chess_man')
         chess_man.chess_lable_connect(chess_obj_clicked_call_back_func)
         chess_man_info = {}

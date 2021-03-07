@@ -12,6 +12,8 @@ class ChessBoard():
         self.chess_board_height = 800
         self.chess_board_label = None
         self.chess_board_pic_name = 'qi_pan1.jpg'
+        self.is_need_save_sub_chess_board = False
+        self.pao_and_bing_flag_len = 8
         self.per_chessboard_width = 77
         self.per_chessboard_height = 77
         self.first_left_line = 0
@@ -19,8 +21,8 @@ class ChessBoard():
         self.assert_dir = ''
         self.dialog_heigth = 0
         self.chess_board_map = []
-        self.big_line_size = 4
-        self.small_line_size = 2
+        self.big_line_size = 5
+        self.small_line_size = 3
         self.first_sub_chess_board_left = 0
         self.first_sub_chess_board_top = 0
         self.sub_chess_board_pic_rect = [] # [{}, {}, ...]
@@ -73,7 +75,8 @@ class ChessBoard():
 
     def create_sub_chess_board(self, chess_board_path):
         self.sub_chess_board_pic_rect_init(chess_board_path)
-        # self.cut_and_save_sub_chess_board(chess_board_path)
+        if self.is_need_save_sub_chess_board == True:
+            self.cut_and_save_sub_chess_board(chess_board_path)
 
     def draw_line(self, cropped, start_row, end_row, start_col, end_col):
         ret_pic = cropped
@@ -140,15 +143,156 @@ class ChessBoard():
         end_col = int(col_num / 2) + self.big_line_size
         return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
 
-    def draw_line_on_sub_chess_board(self, cropped, index):
-        col_idx = index % 9
+    def draw_top_row_sub_chess_board(self, cropped):
         ret_pic = cropped
+        row_num = cropped.shape[0]
+        col_num = cropped.shape[1]
+        end_row = int(row_num / 2)
+        start_row = end_row - self.big_line_size
+        start_col = 0
+        end_col = col_num
+        ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        end_row = row_num
+        start_col = int(col_num / 2)
+        end_col = start_col + self.small_line_size
+        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+
+    def draw_bottom_row_sub_chess_board(self, cropped):
+        ret_pic = cropped
+        row_num = cropped.shape[0]
+        col_num = cropped.shape[1]
+        start_col = 0
+        end_col = col_num
+        start_row = int(row_num / 2)
+        end_row = start_row + self.big_line_size
+        ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_row = 0
+        start_col = int(col_num / 2)
+        end_col = start_col + self.small_line_size
+        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+
+    def draw_left_col_sub_chess_board(self, cropped, index):
+        ret_pic = cropped
+        draw_flag = self.check_is_need_draw_flag(index)
+        if draw_flag != None:
+            ret_pic = self.draw_center_pao_and_bing_flag(cropped, draw_flag)
         row_num = cropped.shape[0]
         col_num = cropped.shape[1]
         start_row = 0
         end_row = row_num
+        end_col = int(col_num / 2)
+        start_col = end_col - self.big_line_size
+        ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        end_col = col_num
+        start_row = int(row_num / 2)
+        end_row = start_row + self.small_line_size
+        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+
+    def draw_right_col_sub_chess_board(self, cropped, index):
+        ret_pic = cropped
+        draw_flag = self.check_is_need_draw_flag(index)
+        if draw_flag != None:
+            ret_pic = self.draw_center_pao_and_bing_flag(cropped, draw_flag)
+        row_num = cropped.shape[0]
+        col_num = cropped.shape[1]
+        start_row = 0
+        end_row = row_num
+        start_col = int(col_num / 2)
+        end_col = start_col + self.big_line_size
+        ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_col = 0
+        start_row = int(row_num / 2)
+        end_row = start_row + self.small_line_size
+        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+
+    def check_is_need_draw_flag(self, index):
+        if index == 19 or index == 25 or index == 64 or index == 70 or\
+                index == 29 or index == 31 or index == 33 or index == 56 or index == 58 or index == 60:
+            return 'center'
+        if index == 27 or index == 54:
+            return 'left'
+        if index == 35 or index == 62:
+            return 'right'
+        return None
+
+    def draw_center_sub_chess_board(self, cropped, index):
+        row_idx = int(index / 9)
+        ret_pic = cropped
+        draw_flag = self.check_is_need_draw_flag(index)
+        if draw_flag != None:
+            ret_pic = self.draw_center_pao_and_bing_flag(cropped, draw_flag)
+        row_num = cropped.shape[0]
+        col_num = cropped.shape[1]
+        start_row = 0
+        end_row = row_num
+        if row_idx == 4:
+            end_row = int(row_num / 2)
+        elif row_idx == 5:
+            start_row = int(row_num / 2)
+        start_col = int(col_num / 2)
+        end_col = start_col + self.small_line_size
+        ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
         start_col = 0
         end_col = col_num
+        start_row = int(row_num / 2)
+        end_row = start_row + self.small_line_size
+        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+
+    def draw_center_pao_and_bing_flag(self, cropped, draw_flag):
+        self.pao_and_bing_flag_len = 3 * self.small_line_size
+        ret_pic = cropped
+        space_len = 2 * self.small_line_size
+        space_len_bottom_right = 3 * self.small_line_size
+        space_len_bottom = 3 * self.small_line_size
+        if draw_flag == 'left':
+            space_len_bottom_right = space_len
+        row_num = cropped.shape[0]
+        col_num = cropped.shape[1]
+        end_row = int(row_num / 2) - space_len
+        start_row = end_row - self.pao_and_bing_flag_len
+        start_col = int(col_num / 2) - space_len - self.small_line_size
+        end_col = start_col + self.small_line_size
+        if draw_flag != 'left':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_col = int(col_num / 2) + space_len_bottom_right
+        end_col = start_col + self.small_line_size
+        if draw_flag != 'right':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_row = int(row_num / 2) + space_len_bottom
+        end_row = start_row + self.pao_and_bing_flag_len
+        start_col = int(col_num / 2) - space_len - self.small_line_size
+        end_col = start_col + self.small_line_size
+        if draw_flag != 'left':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_col = int(col_num / 2) + space_len_bottom_right
+        end_col = start_col + self.small_line_size
+        if draw_flag != 'right':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        end_row = int(row_num / 2) - space_len
+        start_row = end_row - self.small_line_size
+        end_col = int(col_num / 2) - space_len
+        start_col = end_col - self.pao_and_bing_flag_len
+        if draw_flag != 'left':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_col = int(col_num / 2) + space_len_bottom_right
+        end_col = start_col + self.pao_and_bing_flag_len
+        if draw_flag != 'right':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_row = int(row_num / 2) + space_len_bottom
+        end_row = start_row + self.small_line_size
+        end_col = int(col_num / 2) - space_len
+        start_col = end_col - self.pao_and_bing_flag_len
+        if draw_flag != 'left':
+            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        start_col = int(col_num / 2) + space_len_bottom_right
+        end_col = start_col + self.pao_and_bing_flag_len
+        if draw_flag != 'right':
+            return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+        else:
+            return ret_pic
+
+    def draw_line_on_sub_chess_board(self, cropped, index):
+        col_idx = index % 9
         if index == 0:
             return self.draw_top_left_sub_chess_board(cropped)
         if index == 8:
@@ -158,42 +302,15 @@ class ChessBoard():
         if index == 89:
             return self.draw_bottom_right_sub_chess_board(cropped)
         if index < 9:
-            end_row = int(row_num / 2)
-            start_row = end_row - self.big_line_size
-            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
-            end_row = row_num
-            start_col = int(col_num / 2)
-            end_col = start_col + self.small_line_size
-        elif index >= 81:
-            start_row = int(row_num / 2)
-            end_row = start_row + self.big_line_size
-            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
-            start_row = 0
-            start_col = int(col_num / 2)
-            end_col = start_col + self.small_line_size
-        elif col_idx == 0:
-            end_col = int(col_num / 2)
-            start_col = end_col - self.big_line_size
-            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
-            end_col = col_num
-            start_row = int(row_num / 2)
-            end_row = start_row + self.small_line_size
-        elif col_idx == 8:
-            start_col = int(col_num / 2)
-            end_col = start_col + self.big_line_size
-            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
-            start_col = 0
-            start_row = int(row_num / 2)
-            end_row = start_row + self.small_line_size
+            return self.draw_top_row_sub_chess_board(cropped)
+        if index >= 81:
+            return self.draw_bottom_row_sub_chess_board(cropped)
+        if col_idx == 0:
+            return self.draw_left_col_sub_chess_board(cropped, index)
+        if col_idx == 8:
+            return self.draw_right_col_sub_chess_board(cropped, index)
         else:
-            start_col = int(col_num / 2)
-            end_col = start_col + self.small_line_size
-            ret_pic = self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
-            start_col = 0
-            end_col = col_num
-            start_row = int(row_num / 2)
-            end_row = start_row + self.small_line_size
-        return self.draw_line(ret_pic, start_row, end_row, start_col, end_col)
+            return self.draw_center_sub_chess_board(cropped, index)
 
     def chess_board_init(self, Dialog, dialog_heigth, chess_man_size, assert_dir, chess_obj_clicked):
         self.assert_dir = assert_dir
