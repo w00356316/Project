@@ -61,7 +61,7 @@ class Ui_Dialog(QWidget):
 
     def chess_dub_player(self):
         mixer.music.play()
-        time.sleep(2)
+        time.sleep(3)
         mixer.music.stop()
 
     def chess_dub_player_init(self):
@@ -148,19 +148,19 @@ class Ui_Dialog(QWidget):
                 self.chess_man_entry.chess_man_map[name]['label_handle'].chess_thread.kill_thread()
                 return False
             last_chess_man = chess_man_map[self.strategy_entry.last_click_entry['name']]
-            chess_man = None
-            if type != 'chess_board':
+            cur_chess_man = None
+            if type == 'chess_board':
+                self.strategy_entry.second_click_info['chess_board_pos'] = index
+            else:
                 if last_chess_man['color'] == chess_man_map[name]['color']:
                     last_chess_man['label_handle'].chess_thread.kill_thread()
                     last_chess_man['label_handle'].setVisible(True)
                     self.strategy_entry.last_click_entry['name'] = name
                     return True
-                chess_man = chess_man_map[name]
+                cur_chess_man = chess_man_map[name]
                 self.strategy_entry.second_click_info['chess_board_pos'] = 'None'
-            else:
-                self.strategy_entry.second_click_info['chess_board_pos'] = index
             self.strategy_entry.first_click_info['chess_man'] = last_chess_man
-            self.strategy_entry.second_click_info['chess_man'] = chess_man
+            self.strategy_entry.second_click_info['chess_man'] = cur_chess_man
             self.strategy_entry.strategy_run()
             return False
 
