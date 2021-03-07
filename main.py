@@ -48,7 +48,7 @@ class Ui_Dialog(QWidget):
         self.title_name = '中国象棋'
         self.chess_board_entry = None
         self.chess_man_entry = None
-        self.chess_man_size = 108
+        self.chess_man_size = 110
         self.dialog_width = 880
         self.dialog_heigth = 800
         self.strategy_entry = ChessStrategy()
@@ -120,7 +120,7 @@ class Ui_Dialog(QWidget):
         self.chess_dub_player_thread()
 
     def chess_man_init(self, Dialog):
-        self.chess_man_entry = ChessMan(self.assert_dir)
+        self.chess_man_entry = ChessMan(self.assert_dir, self.chess_man_size)
         self.chess_man_entry.chess_man_init(Dialog, self.chess_board_entry.set_chess_map_init_chess_man,
                                             self.chess_board_entry.get_position_by_pos,
                                             self.chess_obj_clicked)
@@ -192,14 +192,14 @@ class Ui_Dialog(QWidget):
         self.strategy_entry.set_update_chess_man_func(self.update_chess_man)
         self.strategy_entry.set_chess_board_entry_func(self.get_chess_board_entry)
 
-    def chess_board_init(self, Dialog):
+    def chess_board_create(self, Dialog):
         self.chess_board_entry = ChessBoard()
         self.chess_board_entry.chess_board_init(Dialog, self.dialog_heigth, self.chess_man_size,
                                                 self.assert_dir, self.chess_obj_clicked)
 
     def back_ground_init(self, Dialog):
         self.back_ground_label = ChessQLabel(Dialog)
-        self.back_ground_label.set_chess_label_name('back_ground')
+        self.back_ground_label.set_chess_label_info('back_ground', None)
         self.back_ground_label.setGeometry(QtCore.QRect(0, 0, self.dialog_width, self.dialog_heigth))
         back_ground_pix = QPixmap(os.path.join(self.assert_dir, 'back_ground.jpg'))
         pic_handle = back_ground_pix.scaled(self.back_ground_label.width(), self.back_ground_label.height())
@@ -212,7 +212,7 @@ class Ui_Dialog(QWidget):
         Dialog.set_close_call_back(self.stop_all_thread)
         self.chess_dub_player_init()
         self.back_ground_init(Dialog)
-        self.chess_board_init(Dialog)
+        self.chess_board_create(Dialog)
         self.chess_man_init(Dialog)
         self.strategy_entry_init()
         self.retranslateUi(Dialog)
