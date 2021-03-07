@@ -415,6 +415,7 @@ class ChessBoard():
             rect = sub_chess_board['sub_chess_board']['rect']
             sub_chess_board_label = sub_chess_board['sub_chess_board']['label']
             sub_chess_board_label.set_chess_label_info('sub_chess_board{}'.format(i), 'chess_board')
+            sub_chess_board_label.set_qlabel_index(i)
             sub_chess_board_label.setGeometry(QtCore.QRect(rect['left'], rect['top'], rect['width'], rect['higth']))
             sub_chess_board_pic_name = 'sub_chess_board{}.jpg'.format(i)
             chess_board_path = os.path.join(self.assert_dir, sub_chess_board_pic_name)

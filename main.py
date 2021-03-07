@@ -126,21 +126,6 @@ class Ui_Dialog(QWidget):
                                             self.chess_obj_clicked)
         self.strategy_entry.set_chess_map(self.chess_board_entry.chess_board_map.copy())
 
-    def get_chess_board_pos(self):
-        x, y = pag.position()
-        win_handle = win32gui.FindWindow(None, self.title_name)
-        left, top, right, bottom = win32gui.GetWindowRect(win_handle)
-        left_pos = x - left - self.chess_board_entry.first_left_line
-        top_pos = y - top - self.chess_board_entry.first_top_line
-        # 棋盘10行9列
-        row = round(top_pos / self.chess_board_entry.per_chessboard_height)
-        if row > 0:
-            row -= 1
-        pos = row * 9
-        pos += round(left_pos / self.chess_board_entry.per_chessboard_width)
-        print('chess board click pos={}\n'.format(pos))  # 打印坐标
-        return pos
-
     def is_exist_label_running_thread(self):
         for chess_name, value in self.chess_man_entry.chess_man_map.items():
             if not value['label_handle'].chess_thread:
@@ -149,10 +134,10 @@ class Ui_Dialog(QWidget):
                 return True
         return False
 
-    def chess_obj_clicked(self, name):
+    def chess_obj_clicked(self, name, type, index):
         chess_man_map = self.chess_man_entry.chess_man_map
         if self.is_exist_label_running_thread() != True:
-            if name == 'chess_board':
+            if type == 'chess_board':
                 return False
             if self.competition.cur_player != chess_man_map[name]['color']:
                 return False
@@ -164,7 +149,7 @@ class Ui_Dialog(QWidget):
                 return False
             last_chess_man = chess_man_map[self.strategy_entry.last_click_entry['name']]
             chess_man = None
-            if name != 'chess_board':
+            if type != 'chess_board':
                 if last_chess_man['color'] == chess_man_map[name]['color']:
                     last_chess_man['label_handle'].chess_thread.kill_thread()
                     last_chess_man['label_handle'].setVisible(True)
@@ -173,7 +158,7 @@ class Ui_Dialog(QWidget):
                 chess_man = chess_man_map[name]
                 self.strategy_entry.second_click_info['chess_board_pos'] = 'None'
             else:
-                self.strategy_entry.second_click_info['chess_board_pos'] = self.get_chess_board_pos()
+                self.strategy_entry.second_click_info['chess_board_pos'] = index
             self.strategy_entry.first_click_info['chess_man'] = last_chess_man
             self.strategy_entry.second_click_info['chess_man'] = chess_man
             self.strategy_entry.strategy_run()

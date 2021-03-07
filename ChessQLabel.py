@@ -27,13 +27,17 @@ class ChessQLabel(QLabel):
         self.type = None # 'chess_man'/'chess_board'
         self.click_call_back = None
         self.chess_thread = None
+        self.index = 90
 
     def set_chess_label_info(self, name, type):
         self.name = name
         self.type = type
 
+    def set_qlabel_index(self, index):
+        self.index = index
+
     def mouseReleaseEvent(self, QMouseEvent):
-        if self.click_call_back(self.name) != True:
+        if self.click_call_back(self.name, self.type, self.index) != True:
             return
         if (self.chess_thread == None) or (not self.chess_thread.is_alive()):
             self.chess_thread = WorkerThread(self.chess_board_clicked, 0.35)

@@ -94,6 +94,7 @@ class ChessMan():
         if self.is_need_show_chess_man == True:
             chess_man.setPixmap(pic_handle)
         chess_man.set_chess_label_info(chess_man_name, 'chess_man')
+        chess_man.set_qlabel_index(pos)
         chess_man.chess_lable_connect(chess_obj_clicked_call_back_func)
         chess_man_info = {}
         chess_man_info['pos'] = pos
