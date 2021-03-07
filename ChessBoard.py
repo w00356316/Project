@@ -9,10 +9,9 @@ import math
 
 class ChessBoard():
     def __init__(self):
-        self.chess_board_width = 700
-        self.chess_board_height = 800
-        self.chess_board_label = None
-        self.chess_board_pic_name = 'qi_pan1.jpg'
+        self.chess_board_width = 0
+        self.chess_board_height = 0
+        self.chess_board_pic_name = 'qi_pan2.jpg'
         self.is_need_save_sub_chess_board = False
         self.pao_and_bing_flag_len = 8
         self.per_chessboard_width = 77
@@ -327,7 +326,7 @@ class ChessBoard():
         ret_pic = cropped
         line_slope = self.per_chessboard_width / self.per_chessboard_height
         row = start_row
-        line_size = int(self.small_line_size / 6 * 4)
+        line_size = int(self.small_line_size / 4 * 5)
         if line_dir == 'right_bttom':
             while row < end_row:
                 start_col = int(line_slope * row)
@@ -367,14 +366,6 @@ class ChessBoard():
     def chess_board_init(self, Dialog, dialog_heigth, chess_man_size, assert_dir, chess_obj_clicked):
         self.assert_dir = assert_dir
         self.dialog_heigth = dialog_heigth
-        self.chess_board_label = ChessQLabel(Dialog)
-        self.chess_board_label.set_chess_label_info('chess_board', 'chess_board')
-        self.chess_board_label.setGeometry(QtCore.QRect(0, 0, self.chess_board_width, self.chess_board_height))
-        chess_board_path = os.path.join(assert_dir, self.chess_board_pic_name)
-        chess_board_pix = QPixmap(chess_board_path)
-        pic_handle = chess_board_pix.scaled(self.chess_board_label.width(), self.chess_board_label.height())
-        self.chess_board_label.setPixmap(pic_handle)
-        self.chess_board_label.chess_lable_connect(chess_obj_clicked)
         self.create_chess_map(Dialog, dialog_heigth, chess_man_size)
         self.create_sub_chess_board(os.path.join(self.assert_dir, self.chess_board_pic_name))
         self.show_sub_chess_board(chess_obj_clicked)

@@ -10,11 +10,9 @@ from ChessBoard import ChessBoard
 from ChessMan import ChessMan
 import sys
 import os
-import pyautogui as pag
 from pygame import mixer
 import time
 import threading
-import win32gui
 
 class Mp3Thread(threading.Thread):
     def __init__(self, func):
@@ -48,8 +46,8 @@ class Ui_Dialog(QWidget):
         self.title_name = '中国象棋'
         self.chess_board_entry = None
         self.chess_man_entry = None
-        self.dialog_width = 880
-        self.dialog_heigth = 800
+        self.dialog_heigth = 660
+        self.dialog_width = int(self.dialog_heigth * 0.618 / 2) + self.dialog_heigth
         self.chess_man_size = int(self.dialog_heigth / 10 / 5 * 7)
         self.strategy_entry = ChessStrategy()
         self.competition = ChessCompetition()
@@ -60,6 +58,7 @@ class Ui_Dialog(QWidget):
         dub_mp3.start()
 
     def chess_dub_player(self):
+        self.chess_dub_player_init()
         mixer.music.play()
         time.sleep(3)
         mixer.music.stop()
@@ -212,5 +211,7 @@ if __name__ == "__main__":
     main = ChessWidget()
     mainwindow = Ui_Dialog()
     mainwindow.setupUi(main)
+    main.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint)
+    main.setFixedSize(main.width(), main.height())
     main.show()
     sys.exit(app.exec())
